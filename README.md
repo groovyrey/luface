@@ -9,7 +9,7 @@ Luface is a biometric identity infrastructure platform built with Nuxt. It provi
 - Developer API keys for server-to-server integrations.
 - Webhook configuration for identity events.
 - Audit and usage tracking for operational visibility.
-- Encrypted biometric descriptor storage with optional Milvus vector search.
+- Encrypted biometric descriptor storage.
 
 ## Tech Stack
 
@@ -17,7 +17,6 @@ Luface is a biometric identity infrastructure platform built with Nuxt. It provi
 - Nitro server routes under `server/api`.
 - Turso/libSQL for persistence.
 - `@vladmandic/face-api` for client-side face descriptors.
-- Milvus for vector indexing when configured.
 - Scalar for API documentation from `public/openapi.json`.
 
 ## Project Structure
@@ -46,11 +45,7 @@ Create `.env.local` with the required runtime values:
 TURSO_DATABASE_URL=
 TURSO_AUTH_TOKEN=
 ENCRYPTION_KEY=
-MILVUS_ADDRESS=
-MILVUS_TOKEN=
 ```
-
-`MILVUS_ADDRESS` and `MILVUS_TOKEN` are only required when vector search is enabled.
 
 ## Development
 

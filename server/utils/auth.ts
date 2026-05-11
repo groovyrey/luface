@@ -2,7 +2,6 @@ import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { useDb } from './db';
 import { decryptBiometrics } from './encryption';
-import { searchFaceVector } from './milvus';
 
 export const hashPassword = async (password: string) => {
   return await bcrypt.hash(password, 10);
@@ -160,56 +159,21 @@ export const findMatchingUserByFace = async (faceDescriptor: number[] | number[]
     ? (faceDescriptor as number[][]) 
     : [faceDescriptor as number[]];
 
-  // 1. Try Milvus Vector Search if it's an external user search
-  if (developerId) {
-    // Average descriptors for a more robust search vector
-    let queryVector: number[];
-    if (inputDescriptors.length > 1) {
-      const len = inputDescriptors[0].length;
-      queryVector = new Array(len).fill(0);
-      for (const d of inputDescriptors) {
-        for (let i = 0; i < len; i++) queryVector[i] += d[i];
-      }
-      queryVector = queryVector.map(v => v / inputDescriptors.length);
-    } else {
-      queryVector = inputDescriptors[0];
-    }
-
-    const milvusResult = await searchFaceVector(developerId, queryVector, threshold, targetIdentifier);
-    
-    if (milvusResult) {
-      // Double check that the match is for the requested user
-      if (targetIdentifier && milvusResult.email !== targetIdentifier) {
-        console.warn(`[SECURITY] Milvus returned unexpected user ${milvusResult.email} for target ${targetIdentifier}`);
-        return null;
-      }
-
-      // Fetch full data from Turso
-      const [rows] = await db.execute(
-        'SELECT email as username, face_descriptor FROM external_users WHERE developer_id = ? AND email = ?',
-        [developerId, milvusResult.email]
-      );
-      const users = rows as any[];
-      if (users.length > 0) {
-        console.log(`[MILVUS MATCH] User: ${milvusResult.email}, Distance: ${milvusResult.distance.toFixed(4)}`);
-        return users[0];
-      }
-    }
-  }
-
-  // 2. Fallback to Legacy SQLite Search
   let query: string;
   let params: any[] = [];
   
   if (developerId) {
+    // For external users (API), targetIdentifier is the user email
     if (targetIdentifier) {
       query = 'SELECT email as username, face_descriptor FROM external_users WHERE developer_id = ? AND email = ? AND face_descriptor IS NOT NULL';
       params = [developerId, targetIdentifier];
     } else {
+      // If no identifier provided, we search all users for this developer (less efficient fallback)
       query = 'SELECT email as username, face_descriptor FROM external_users WHERE developer_id = ? AND face_descriptor IS NOT NULL';
       params = [developerId];
     }
   } else {
+    // For internal users, targetIdentifier is the username
     query = 'SELECT username, face_descriptor FROM users WHERE username = ? AND face_descriptor IS NOT NULL';
     params = [targetIdentifier];
   }
