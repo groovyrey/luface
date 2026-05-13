@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS api_keys (
     key_hash VARCHAR(255) NOT NULL,
     key_prefix VARCHAR(50) NOT NULL,
     name VARCHAR(255) NOT NULL,
-    threshold REAL DEFAULT 0.45,
+    threshold REAL DEFAULT 0.55,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_used_at TIMESTAMP NULL,
     FOREIGN KEY (user_id) REFERENCES users(username) ON DELETE CASCADE

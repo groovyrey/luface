@@ -59,9 +59,9 @@
             <div class="key-settings">
               <label>THRESHOLD: </label>
               <select :value="key.threshold" @change="updateThreshold(key.id, $event.target.value)">
-                <option :value="0.35">Strict (0.35)</option>
-                <option :value="0.45">Standard (0.45)</option>
-                <option :value="0.55">Relaxed (0.55)</option>
+                <option :value="0.45">Strict (0.45)</option>
+                <option :value="0.55">Standard (0.55)</option>
+                <option :value="0.65">Relaxed (0.65)</option>
               </select>
             </div>
           </div>
@@ -202,7 +202,7 @@ const fetchKeys = async () => {
     const data = await $fetch('/api/keys');
     keys.value = data.map(k => ({
       ...k,
-      threshold: k.threshold ? Math.round(parseFloat(k.threshold) * 100) / 100 : 0.45
+      threshold: k.threshold ? Math.round(parseFloat(k.threshold) * 100) / 100 : 0.55
     }));
   } catch (err) {
     toast.error('Failed to load API keys');

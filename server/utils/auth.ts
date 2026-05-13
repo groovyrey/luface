@@ -75,7 +75,7 @@ export const requireAuth = async (event: any) => {
   return session;
 };
 
-export const EUCLIDEAN_THRESHOLD = 0.4; // Tightened for better security
+export const EUCLIDEAN_THRESHOLD = 0.55; // Relaxed for better reliability in varied conditions
 export const MAX_DESCRIPTORS = 12;
 
 export function parseDescriptor(d: any): number[][] | null {
